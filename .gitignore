@@ -1,5 +1,7 @@
 .vene/
-data/raw/*
+data/interim/*
+data/invalid/*
+data/processed/*
 .env
 .idea/
 __pycache__/
