@@ -1,0 +1,22 @@
+2025-12-09 20:02:02,180 - src.pipeline.etl - INFO - Loading data/raw/data.csv
+2025-12-09 20:02:02,203 - src.pipeline.etl - INFO - Raw rows: 1934
+/Users/dantrinh0_0/PycharmProjects/Python/src/cleaning/salary_cleaner.py:25: FutureWarning: Possible set difference at position 2
+  t = re.sub(r"[---]", "-", text)
+2025-12-09 20:02:03,977 - src.pipeline.etl - INFO - Saved processed to data/processed/data_cleaned.csv
+2025-12-10 20:02:02,216 - src.pipeline.etl - INFO - Loading data/raw/data.csv
+2025-12-10 20:02:02,237 - src.pipeline.etl - INFO - Raw rows: 1934
+/Users/dantrinh0_0/PycharmProjects/Python/src/cleaning/salary_cleaner.py:32: FutureWarning: Possible set difference at position 2
+  t = re.sub(r"[---]", "-", text)
+2025-12-10 20:02:04,007 - src.pipeline.etl - INFO - Saved processed to data/processed/data_cleaned.csv
+2025-12-10 20:02:04,475 - src.pipeline.etl - INFO - Loaded into DB
+/Users/dantrinh0_0/PycharmProjects/Python/src/cleaning/salary_cleaner.py:45: FutureWarning: Possible set difference at position 2
+  t = re.sub(r"[---]", "-", text)
+2025-12-11 20:02:01,898 - src.pipeline.etl - INFO - Loading data/raw/data.csv
+2025-12-11 20:02:01,916 - src.pipeline.etl - INFO - Raw rows: 1934
+2025-12-11 20:02:15,202 - src.pipeline.etl - INFO - Saved processed to data/processed/data_cleaned.csv
+2025-12-11 20:02:15,606 - src.pipeline.etl - INFO - Loaded into DB
+(0.0, 30000000.0, 'VND')
+(20000000.0, 25000000.0, 'VND')
+(0.0, 40000000.0, 'VND')
+(11000000.0, None, 'VND')
+(0.0, 2000.0, 'USD')
