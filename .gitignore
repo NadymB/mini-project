@@ -2,6 +2,7 @@
 data/interim/*
 data/invalid/*
 data/processed/*
+logs/*
 .env
 .idea/
 __pycache__/
