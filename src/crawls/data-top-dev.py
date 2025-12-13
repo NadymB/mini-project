@@ -48,7 +48,7 @@ query = f"?job_categories_ids={quote(','.join(map(str, job_categories)))}"
 URL = BASE_URL + query
 
 rows = []
-detail_links = []   # 👈 job cần vào detail
+detail_links = []
 
 # ---------------- crawl list ----------------
 
@@ -127,9 +127,8 @@ with sync_playwright() as p:
         ).first.text_content()
 
         if per_text:
-            # loại bỏ label và SVG nếu cần
+            #Remove label and svg if needed
             per_text = per_text.replace("Application deadline:", "").strip()
-            print(per_text)  # -> "28-12-2025"
 
         row["time"] = per_text
 
