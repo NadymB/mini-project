@@ -14,7 +14,7 @@ def _detect_unit(text):
 def _parse_number(s_num, s_raw = None):
     # normalize decimal common/dot to find amount in salary
     s_cleaned = unidecode.unidecode(s_raw.strip() if s_raw is not None else s_num)
-    s_num = unidecode.unidecode(s_num.replace(',', ''))
+    s_num = unidecode.unidecode(s_num.replace(',', '').replace('.', ''))
     m = re.search(r"(\d+(?:\.\d+)?)", s_num)
 
     if not m:
@@ -29,18 +29,21 @@ def _parse_number(s_num, s_raw = None):
         return salary * 1000
     if 'tram' in s_cleaned:
         return salary * 100
+    print(f"salary: {salary}")
+
     return salary
 
 def clean_salary(raw):
     if raw == '':
         return None, None, None
     text = unidecode.unidecode(raw.strip().lower())
-    if text == '' or any(k in text for k in ['thoa', 'thoa thuan', 'thoathuan', 'thuong luong']):
+    if text == '' or any(k in text for k in ['thoa', 'thoa thuan', 'thoathuan', 'thuong luong', 'thuongluong']):
         return None, None, None
     unit = _detect_unit(text)
 
     t = re.sub(r"[---]", "-", text)
     m = re.search(r"\$?([\d,.]+)\s*-\s*\$?([\d,.]+)", t)
+    print(f"t: {t}")
 
     if m:
         a = _parse_number(m.group(1), t)
@@ -60,3 +63,4 @@ def clean_salary(raw):
         return n, n, unit
 
     return None, None, None
+
