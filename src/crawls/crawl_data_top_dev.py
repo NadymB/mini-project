@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import re
 from urllib.parse import quote
 from src.utils.contants import BASE_URL, job_categories, OUTPUT_STATE, MAX_PAGE, OUTPUT_FILE
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 # ---------------- utils ----------------
 
@@ -115,29 +116,35 @@ with sync_playwright() as p:
             })
 
     # ---------------- crawl detail ONLY if needed ----------------
-    no_address_count = sum(1 for row in rows if not row.get("address"))
-    print(f"số row không có address, {no_address_count}")
-    print(f"số row tổng, {len(rows)}")
-
     for row in rows:
-        page.goto(row["link_description"], timeout=60000)
-        print("Fetching detail", row["link_description"])
-        per_text = page.locator(
-            'span.break-none.flex.w-fit.items-center.gap-1.whitespace-nowrap.bg-text-50.p-1.text-xs.text-text-500'
-        ).first.text_content()
-
-        if per_text:
-            #Remove label and svg if needed
-            per_text = per_text.replace("Application deadline:", "").strip()
-
-        row["time"] = per_text
-
-        if not row["address"]:
-            addr = safe_text(
-                page.locator('div.my-2.grid span.line-clamp-1')
+        try:
+            page.goto(
+                row["link_description"],
+                timeout=60000,
+                wait_until="domcontentloaded"
             )
-            row["address"] = addr
+            print("Fetching detail", row["link_description"])
 
+            page.wait_for_timeout(500)
+
+            per_text = page.locator(
+                'span.break-none.flex.w-fit.items-center.gap-1.whitespace-nowrap.bg-text-50.p-1.text-xs.text-text-500'
+            ).first.text_content()
+
+            if per_text:
+                #Remove label and svg if needed
+                per_text = per_text.replace("Application deadline:", "").strip()
+
+            row["time"] = per_text
+
+            if not row["address"]:
+                addr = safe_text(
+                    page.locator('div.my-2.grid span.line-clamp-1')
+                )
+                row["address"] = addr
+        except PlaywrightTimeoutError:
+            print("⚠️ Timeout → skip", row["link_description"])
+            continue
     browser.close()
 
 # ---------------- save ----------------

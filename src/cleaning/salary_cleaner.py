@@ -29,7 +29,6 @@ def _parse_number(s_num, s_raw = None):
         return salary * 1000
     if 'tram' in s_cleaned:
         return salary * 100
-    print(f"salary: {salary}")
 
     return salary
 
@@ -43,7 +42,6 @@ def clean_salary(raw):
 
     t = re.sub(r"[---]", "-", text)
     m = re.search(r"\$?([\d,.]+)\s*-\s*\$?([\d,.]+)", t)
-    print(f"t: {t}")
 
     if m:
         a = _parse_number(m.group(1), t)
