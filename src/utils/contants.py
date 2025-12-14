@@ -20,7 +20,7 @@ JOB_TITLE_MAP = {
     "Data Engineer / Scientist/ Analyst": ["data engineer", "etl", "data pipeline", "data", "big data", "scientist", "data analyst", "data analysis", "phan tich du lieu", "ky su du lieu", "du lieu", "khoa hoc du lieu", "khoa hoc" ],
     "Project Manager": ["pm", "project manager", "product owner", "po", "quan ly du an"],
     "Quality Assurance / Tester": ["qc", "tester", "qa", "kiem thu", "kiem soat", "quality assurance", "quality control"],
-    "Network Engineer / Cyber Security Expert": ["cybersecurity", "cyber", "security", "an toan", "systems", "system", "he thong", "IT", "cong nghe thong tin"],
+    "Network Engineer / Cyber Security Expert": ["cybersecurity", "cyber", "security", "an toan", "systems", "system", "he thong", "IT", "cong nghe thong tin", "network", "administration", "quan tri", "ket noi"],
     "Machine Learning / AI Engineer": ["ai", "artificial intelligence", "tri tue nhan tao", "machine learning", "ml", "hoc may", "may hoc"],
     "UI/UX Designer": ["designer", "ui", "ux", "ui/ux"]
 }

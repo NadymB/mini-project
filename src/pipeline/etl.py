@@ -16,6 +16,17 @@ os.makedirs("data/processed", exist_ok=True)
 def transform(df):
     # normalize col names
     df.columns = df.columns.str.strip().str.lower().str.replace(' ', '_')
+
+    before = len(df)
+    # 🔥 remove duplicate jobs
+    df = df.drop_duplicates(
+        subset=['job_title', 'company', 'salary'],
+        keep='first'
+    )
+
+    logger.info(f"Removed duplicates: {before - len(df)}")
+    logger.info(f"Rows after dedup: {len(df)}")
+
     # salary
     df[['min_salary','max_salary','salary_unit']] = df['salary'].apply(
         lambda x: pd.Series(clean_salary(x))
