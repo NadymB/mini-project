@@ -65,7 +65,7 @@ def notify_discord(df, webhook_url):
         else:
             logger.info("Discord message %d/%d sent", i, len(chunks))
 
-def built_etl_summary(df_raw, df_final):
+def built_etl_summary(df_final):
     # convert date
     df_final['posted_date'] = pd.to_datetime(
         df_final['posted_date'],
@@ -141,7 +141,7 @@ def run_etl(input_csv="data/raw/data.csv", output_csv="data/processed/data_clean
             write_df_to_db(df_trans, db_engine)
             logger.info("Loaded into DB")
         if DISCORD_WEBHOOK_URL:
-            df_notify = built_etl_summary(df, df_trans)
+            df_notify = built_etl_summary(df_trans)
             notify_discord(df_notify, DISCORD_WEBHOOK_URL)
         return df_trans
     except FileNotFoundError as e:

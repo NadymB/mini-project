@@ -1,8 +1,11 @@
 from sqlalchemy import create_engine
-import urllib.parse
+import os
+from dotenv import load_dotenv
 
-def get_engine_pg(user, password, host, port, dbname):
-    return create_engine(f"postgresql://{user}:{urllib.parse.quote_plus(password)}@{host}:{port}/{dbname}")
+def get_engine_pg():
+    load_dotenv()
+    db_url = os.getenv("DATABASE_URL")
+    return create_engine(db_url)
 
 def write_df_to_db(df, engine, table_name="jobs"):
     with engine.begin() as conn:
