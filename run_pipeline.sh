@@ -11,7 +11,10 @@ source "$BASE_DIR/.venv/bin/activate"
 echo "===== START PIPELINE $(date) ====="
 
 
-# 1. Crawl TopDev
+# 1. Login top dev
+python3 -m src.crawls.playwright_with_gg
+
+# 2. Crawl TopDev
 python3 -m src.crawls.crawl_data_top_dev
 
 # 2. Run pipeline

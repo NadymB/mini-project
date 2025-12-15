@@ -5,6 +5,9 @@ from src.cleaning.title_job_standardizer import standardize_title_job
 from src.utils.logger import get_logger
 import os
 import json
+from dotenv import load_dotenv
+import requests
+from datetime import datetime, timedelta
 
 with open("data/raw/vietnam-provinces.json", "r", encoding="utf-8") as f:
     PROVINCES = json.load(f)
@@ -12,6 +15,79 @@ with open("data/raw/vietnam-provinces.json", "r", encoding="utf-8") as f:
 logger = get_logger(__name__)
 os.makedirs("data/interim", exist_ok=True)
 os.makedirs("data/processed", exist_ok=True)
+
+load_dotenv()
+DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
+logger.info("webhook_url", DISCORD_WEBHOOK_URL)
+
+def notify_discord(df, webhook_url):
+    """
+    Send ALL jobs to Discord (auto split by Discord limit)
+    """
+    if df.empty:
+        logger.info("No data to notify Discord")
+        return
+
+    header = "🔥 **New Data jobs (last 7 days)** 🔥\n\n"
+
+    chunks = []
+    current = header
+
+    for _, row in df.iterrows():
+        msg = (
+            f"**{row['job_title']}**\n"
+            f"🏢 {row['company']}\n"
+            f"📍 {row['address']}\n"
+            f"🔗 {row.get('url') or row.get('description_link')}\n\n"
+        )
+
+        # if over 2000 chars -> push chunk
+        if len(current) + len(msg) > 1900:
+            chunks.append(current)
+            current = msg
+        else:
+            current += msg
+
+    # push rest of
+    if current.strip():
+        chunks.append(current)
+
+    logger.info("Sending %d Discord messages", len(chunks))
+
+    for i, content in enumerate(chunks, 1):
+        payload = {"content": content}
+        resp = requests.post(webhook_url, json=payload, timeout=10)
+
+        if resp.status_code != 204:
+            logger.error(
+                "Discord notify failed (part %d/%d): %s - %s",
+                i, len(chunks), resp.status_code, resp.text
+            )
+        else:
+            logger.info("Discord message %d/%d sent", i, len(chunks))
+
+def built_etl_summary(df_raw, df_final):
+    # convert date
+    df_final['posted_date'] = pd.to_datetime(
+        df_final['posted_date'],
+        errors='coerce'
+    )
+
+    one_week_ago = datetime.now() - timedelta(days=7)
+
+    df_filtered = df_final[
+        (df_final['title_group'] == "Data Engineer") &
+        (df_final['posted_date'] >= one_week_ago)
+        ]
+    logger.info("Filtered Data jobs (last 7 days): %d rows", len(df_filtered))
+    logger.info("Sample:\n%s", df_filtered.head(5))
+
+    df_result = df_filtered[
+        ['job_title', 'company', 'address', 'url']
+    ]
+
+    return df_result
+
 
 def transform(df):
     # normalize col names
@@ -65,6 +141,9 @@ def run_etl(input_csv="data/raw/data.csv", output_csv="data/processed/data_clean
             from src.db.db_client import write_df_to_db
             write_df_to_db(df_trans, db_engine)
             logger.info("Loaded into DB")
+        if DISCORD_WEBHOOK_URL:
+            df_notify = built_etl_summary(df, df_trans)
+            notify_discord(df_notify, DISCORD_WEBHOOK_URL)
         return df_trans
     except FileNotFoundError as e:
         logger.exception("Input file not found: %s", e)

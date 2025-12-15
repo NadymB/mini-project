@@ -17,7 +17,8 @@ SUB_WORDS_ADDRESS = [
 JOB_TITLE_MAP = {
     "Software Engineer": ["software engineer", "developer", "programmer", "lap trinh", "dev", "frontend", "ky su", "devops"],
     "Product Manager / Business Analyst": ["business analyst", "business analysis", "product manager", "business", "phan tich kinh doanh"],
-    "Data Engineer / Scientist/ Analyst": ["data engineer", "etl", "data pipeline", "data", "big data", "scientist", "data analyst", "data analysis", "phan tich du lieu", "ky su du lieu", "du lieu", "khoa hoc du lieu", "khoa hoc" ],
+    "Data Engineer": ["data engineer", "etl", "data pipeline", "big data", "ky su du lieu"],
+    "Data Scientist / Analyst": ["scientist", "khoa hoc du lieu", "khoa hoc", "data analyst", "data analysis", "phan tich du lieu"],
     "Project Manager": ["pm", "project manager", "product owner", "po", "quan ly du an"],
     "Quality Assurance / Tester": ["qc", "tester", "qa", "kiem thu", "kiem soat", "quality assurance", "quality control"],
     "Network Engineer / Cyber Security Expert": ["cybersecurity", "cyber", "security", "an toan", "systems", "system", "he thong", "IT", "cong nghe thong tin", "network", "administration", "quan tri", "ket noi"],
