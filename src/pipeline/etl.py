@@ -18,7 +18,6 @@ os.makedirs("data/processed", exist_ok=True)
 
 load_dotenv()
 DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
-logger.info("webhook_url", DISCORD_WEBHOOK_URL)
 
 def notify_discord(df, webhook_url):
     """
