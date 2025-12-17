@@ -10,6 +10,8 @@ def normalize(s):
 
 
 def parse_locations(raw, cities_json):
+    if not isinstance(raw, str) or not raw.strip():
+        return None, None
     parts = [p.strip() for p in raw.split(":")]
 
     city_raw = parts[0]

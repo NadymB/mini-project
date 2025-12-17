@@ -1,5 +1,5 @@
 from playwright.sync_api import sync_playwright
-from src.utils.contants import OUTPUT_STATE
+from src.utils.contants import COOKIES_TOPDEV_FILE
 
 with sync_playwright() as p:
     browser = p.chromium.launch(headless=False)
@@ -31,7 +31,7 @@ with sync_playwright() as p:
     print("✅ Login Google successfully!")
 
     #Save session to crawl again
-    context.storage_state(path=OUTPUT_STATE)
-    print(f"✅ Session saved at {OUTPUT_STATE}")
+    context.storage_state(path=COOKIES_TOPDEV_FILE)
+    print(f"✅ Session saved at {COOKIES_TOPDEV_FILE}")
 
     browser.close()
