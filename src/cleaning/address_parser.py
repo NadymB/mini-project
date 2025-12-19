@@ -8,16 +8,18 @@ def normalize(s):
     s = re.sub(pattern, "", s)
     return s.strip()
 
-
 def parse_locations(raw, cities_json):
     if not isinstance(raw, str) or not raw.strip():
         return None, None
-    parts = [p.strip() for p in raw.split(":")]
 
-    city_raw = parts[0]
+    location = raw.split("-")[0].strip()
+
+    parts = [p.strip() for p in location.split(",")]
+
+    city_raw = parts[-1]
     city_norm = normalize(city_raw)
 
-    district_raw = parts[1] if len(parts) > 1 else None
+    district_raw = parts[0] if len(parts) > 1 else None
     district_norm = normalize(district_raw) if district_raw else None
 
     matched_city = None

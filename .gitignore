@@ -1,7 +1,5 @@
 .vene/
-data/interim/*
-data/invalid/*
-data/processed/*
+data/*
 logs/*
 .env
 .idea/

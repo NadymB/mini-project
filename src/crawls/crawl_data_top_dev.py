@@ -1,14 +1,12 @@
-import csv
 from playwright.sync_api import sync_playwright
 from src.utils.helper import safe_text, is_empty, parse_date
 from src.utils.contants import BASE_URL, COOKIES_TOPDEV_FILE, MAX_PAGE, RAW_DATA_FILE
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
-import os
+from src.db.db_client import get_engine_pg
+from src.db.command_sql import CREATE_RAW_JOBS_TABLE_SQL, INSERT_RAW_JOBS_SQL
 
 rows = []
-detail_links = []
 # ---------------- crawl list ----------------
-
 with sync_playwright() as p:
     browser = p.chromium.launch(headless=True)
     context = browser.new_context(storage_state=COOKIES_TOPDEV_FILE)
@@ -62,9 +60,6 @@ with sync_playwright() as p:
                 job.locator('div.mt-2.grid span.line-clamp-1')
             )
 
-            if not address:
-                detail_links.append(link)
-
             if is_empty(raw_date) or is_empty(salary):
                 continue
 
@@ -75,7 +70,7 @@ with sync_playwright() as p:
                 "salary": salary,
                 "address": address,
                 "time": period,
-                "link_description": link,
+                "url": link,
                 "jd": roles
             })
 
@@ -83,11 +78,11 @@ with sync_playwright() as p:
     for row in rows:
         try:
             page.goto(
-                row["link_description"],
+                row["url"],
                 timeout=60000,
                 wait_until="domcontentloaded"
             )
-            print("Fetching detail", row["link_description"])
+            print("Fetching detail", row["url"])
 
             page.wait_for_timeout(500)
 
@@ -99,10 +94,10 @@ with sync_playwright() as p:
                 #Remove label and svg if needed
                 per_text = per_text.replace("Application deadline:", "").strip()
 
-            row["time"] = per_text
+            row["time"] = parse_date(per_text)
 
             # get your role & responsibilities
-            lis = page.locator("div.prose-ul ul li")
+            lis = page.locator("div.prose-ul ul li, span[class*='td-text'], span[style*='font-family']")
             texts = lis.all_inner_texts()
 
             row["jd"] = "\n".join([t.strip() for t in texts if t.strip()])
@@ -113,23 +108,18 @@ with sync_playwright() as p:
                 )
                 row["address"] = addr
         except PlaywrightTimeoutError:
-            print("⚠️ Timeout → skip", row["link_description"])
+            print("⚠️ Timeout → skip", row["url"])
             continue
     browser.close()
 
-# ---------------- save ----------------
+# ----------------Insert into DB----------------
+if not rows:
+    print("No data to insert")
+    exit(0)
 
-file_exists = os.path.exists(RAW_DATA_FILE)
-with open(RAW_DATA_FILE, "a", newline="", encoding="utf-8") as f:
-    writer = csv.DictWriter(
-        f,
-        fieldnames=["created_date", "job_title", "company", "salary", "address", "time", "link_description", "jd"],
-        quoting=csv.QUOTE_ALL,
-        escapechar="\\"
-    )
-    if not file_exists:
-        writer.writeheader()
-    writer.writerows(rows)
+engine = get_engine_pg()
+with engine.begin() as conn:
+    conn.execute(CREATE_RAW_JOBS_TABLE_SQL)
+    conn.execute(INSERT_RAW_JOBS_SQL, rows)
 
-print(f"Saved {len(rows)} jobs to {RAW_DATA_FILE}")
-
+print(f"Inserted {len(rows)} raw jobs")

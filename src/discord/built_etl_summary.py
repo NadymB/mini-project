@@ -1,61 +1,61 @@
 from datetime import datetime, timedelta
 from src.ai.jd_summarizer import summarize_jd
 import pandas as pd
-import os
-import json
+from src.db.db_client import upsert_df_to_db
 from src.utils.logger import get_logger
-from src.utils.contants import NOTIFIED_JOBS_FILE
+from src.db.command_sql import CREATE_NOTIFIED_JOBS_TABLE_SQL
 
 logger = get_logger(__name__)
 
 def build_job_key(row):
     return f"{row['job_title']}|{row['company']}|{row['address']}|{row['salary']}".lower()
 
-os.makedirs("data/state", exist_ok=True)
+def built_etl_summary(df_final, engine):
+    df = df_final.copy()
 
-def load_notified_jobs():
-    if not os.path.exists(NOTIFIED_JOBS_FILE):
-        return set()
-    with open(NOTIFIED_JOBS_FILE, "r", encoding="utf-8") as f:
-        return set(json.load(f))
+    df['created_date'] = pd.to_datetime(df['created_date'], errors='coerce')
 
-def save_notified_jobs(job_keys):
-    with open(NOTIFIED_JOBS_FILE, "w", encoding="utf-8") as f:
-        json.dump(sorted(list(job_keys)), f, ensure_ascii=False, indent=2)
+    df = df[
+        (df['job_group'] == "Data Engineer") &
+        (df['created_date'] >= datetime.now() - timedelta(days=7))
+        ].copy()
 
-def built_etl_summary(df_final):
-    df_final = df_final.copy()
+    if df.empty:
+        return df
 
-    df_final['posted_date'] = pd.to_datetime(
-        df_final['posted_date'],
-        errors='coerce'
+    df["job_key"] = df.apply(build_job_key, axis=1)
+    df["jd_summary"] = df["jd"].apply(summarize_jd)
+
+    # Get job_key existed
+    existing_keys = pd.read_sql(
+        "SELECT job_key FROM notified_jobs",
+        engine
+    )["job_key"].tolist()
+
+    # Only get new jobs
+    new_df = df[~df["job_key"].isin(existing_keys)].copy()
+
+    if new_df.empty:
+        logger.info("No new jobs to notify")
+        return new_df
+
+    inserted = upsert_df_to_db(
+        new_df[[
+            "job_key",
+            "job_group",
+            "company",
+            "address",
+            "salary",
+            "jd_summary",
+            "url"
+        ]],
+        engine,
+        table_name="notified_jobs",
+        conflict_cols=["job_key"],
+        create_table_sql=CREATE_NOTIFIED_JOBS_TABLE_SQL
     )
 
-    one_week_ago = datetime.now() - timedelta(days=7)
+    logger.info("New Discord notifications: %d", inserted)
 
-    df_filtered = df_final[
-        (df_final['title_group'] == "Data Engineer") &
-        (df_final['posted_date'] >= one_week_ago)
-    ].copy()
-
-    logger.info("Filtered Data jobs (last 7 days): %d rows", len(df_filtered))
-
-    notified_keys = load_notified_jobs()
-
-    df_filtered["job_key"] = df_filtered.apply(build_job_key, axis=1)
-
-    df_new = df_filtered[~df_filtered["job_key"].isin(notified_keys)].copy()
-
-    logger.info("New jobs to notify: %d", len(df_new))
-
-    if df_new.empty:
-        return df_new
-
-    # summarize JD (CORRECT)
-    df_new["jd_summary"] = df_new["jd"].apply(summarize_jd)
-
-    # save notified
-    save_notified_jobs(set(notified_keys) | set(df_new["job_key"]))
-
-    return df_new[['job_title', 'company', 'address', 'salary', 'jd_summary', 'url']]
+    return new_df
 
