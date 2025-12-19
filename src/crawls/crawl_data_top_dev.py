@@ -8,13 +8,20 @@ from src.db.command_sql import CREATE_RAW_JOBS_TABLE_SQL, INSERT_RAW_JOBS_SQL
 rows = []
 # ---------------- crawl list ----------------
 with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
-    context = browser.new_context(storage_state=COOKIES_TOPDEV_FILE)
+    browser = p.chromium.launch(headless=False, slow_mo=50)
+    context = browser.new_context(
+        user_agent=(
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/120.0.0.0 Safari/537.36"
+        ),
+        storage_state=COOKIES_TOPDEV_FILE
+    )
     page = context.new_page()
 
     for page_num in range(1, MAX_PAGE + 1):
         print(f"Fetching page {page_num}")
-        page.goto(f"{BASE_URL}?page={page_num}", timeout=60000)
+        page.goto(f"{BASE_URL}?page={page_num}", timeout=60000, wait_until="domcontentloaded")
 
         previous_height = 0
         while True:

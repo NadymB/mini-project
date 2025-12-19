@@ -9,11 +9,17 @@ jobs:
   run-pipeline:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
     steps:
       # 1. Clone repo to VM
       - name: Checkout source
         uses: actions/checkout@v4
+
+      - name: Debug env
+        run: |
+          echo "DATABASE_URL is set"
 
       # 2. Install Python to VM
       - name: Set up Python
@@ -35,7 +41,6 @@ jobs:
       # 5. Run ETL pipeline
       - name: Run pipeline
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: |
