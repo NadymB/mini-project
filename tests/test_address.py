@@ -1,8 +1,9 @@
 import json
 
 from src.cleaning.address_parser import parse_locations
+from src.utils.contants import PROVINCES_JSON
 
-with open("data/raw/vietnam-provinces.json", "r", encoding="utf-8") as f:
+with open(PROVINCES_JSON, "r", encoding="utf-8") as f:
     PROVINCES = json.load(f)
 
 def test_address():

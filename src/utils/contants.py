@@ -38,7 +38,10 @@ MAX_PAGE = 20
 RAW_DATA_FILE = "data/raw/data.csv"
 
 # Cookie storage
-COOKIES_TOPDEV_FILE = "data/raw/topdev_google.json"
+COOKIES_TOPDEV_FILE = "secrets/topdev_google.json"
+
+# Viet Nam Provinces
+PROVINCES_JSON = "resources/vietnam-provinces.json"
 
 #Notified jobs
 NOTIFIED_JOBS_FILE = "data/state/notified_jobs.json"

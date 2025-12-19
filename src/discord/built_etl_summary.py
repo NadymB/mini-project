@@ -24,7 +24,6 @@ def built_etl_summary(df_final, engine):
         return df
 
     df["job_key"] = df.apply(build_job_key, axis=1)
-    df["jd_summary"] = df["jd"].apply(summarize_jd)
 
     # Get job_key existed
     existing_keys = pd.read_sql(
@@ -38,6 +37,9 @@ def built_etl_summary(df_final, engine):
     if new_df.empty:
         logger.info("No new jobs to notify")
         return new_df
+
+    # New jobs exist -> apply summarize_jd def
+    df["jd_summary"] = df["jd"].apply(summarize_jd)
 
     inserted = upsert_df_to_db(
         new_df[[

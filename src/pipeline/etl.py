@@ -10,8 +10,9 @@ from src.discord.notify_jobs import notify_discord
 from src.discord.built_etl_summary import built_etl_summary
 from src.db.command_sql import CREATE_CLEANED_JOBS_TABLE_SQL, READ_RAWS_JOBS_TABLE_QUERY_SQL
 from src.db.db_client import load_data_from_db
+from src.utils.contants import PROVINCES_JSON
 
-with open("data/raw/vietnam-provinces.json", "r", encoding="utf-8") as f:
+with open(PROVINCES_JSON, "r", encoding="utf-8") as f:
     PROVINCES = json.load(f)
 
 logger = get_logger(__name__)
