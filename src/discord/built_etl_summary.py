@@ -4,6 +4,7 @@ import pandas as pd
 from src.db.db_client import upsert_df_to_db
 from src.utils.logger import get_logger
 from src.db.command_sql import CREATE_NOTIFIED_JOBS_TABLE_SQL
+from sqlalchemy import inspect
 
 logger = get_logger(__name__)
 
@@ -25,11 +26,16 @@ def built_etl_summary(df_final, engine):
 
     df["job_key"] = df.apply(build_job_key, axis=1)
 
-    # Get job_key existed
-    existing_keys = pd.read_sql(
-        "SELECT job_key FROM notified_jobs",
-        engine
-    )["job_key"].tolist()
+    # 🔍 check notified_jobs exists
+    inspector = inspect(engine)
+
+    if inspector.has_table("notified_jobs"):
+        existing_keys = pd.read_sql(
+            "SELECT job_key FROM notified_jobs",
+            engine
+        )["job_key"].tolist()
+    else:
+        existing_keys = []
 
     # Only get new jobs
     new_df = df[~df["job_key"].isin(existing_keys)].copy()
@@ -39,7 +45,7 @@ def built_etl_summary(df_final, engine):
         return new_df
 
     # New jobs exist -> apply summarize_jd def
-    df["jd_summary"] = df["jd"].apply(summarize_jd)
+    new_df["jd_summary"] = new_df["jd"].apply(summarize_jd)
 
     inserted = upsert_df_to_db(
         new_df[[
