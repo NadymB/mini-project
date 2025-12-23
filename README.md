@@ -3,7 +3,6 @@ This project is a **mini ETL (Extract - Transform - Load) pipeline**. The goal i
 \
 The diagram above illustrates the full data: \
 \
-<img width="1281" height="791" alt="End-to-end Job Data ETL Pipeline (TopDev)" src="https://github.com/user-attachments/assets/64a63b50-037c-4e2b-8dfd-e1b89239175e" /># mini-project
 ![ETL Pipeline Diagram](assets/images/job_data_etl_pipeline_diagram.png)
 
 ## 🏗️ Architecture & Data Flow
