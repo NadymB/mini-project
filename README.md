@@ -74,7 +74,7 @@ DISCORD_WEBHOOK_URL=your_webhook_url
   - Introduction data warehouse (BigQuery/RedShift).
   - Dashboard visualization.
 ## 👨‍💻 Author
-  This project is built as a **learning-oriented Data Engineering mini project**, focusing ETL design, automation and integrate with AI services. 
+This project is built as a learning-oriented **Data Engineering** mini project, focusing ETL design, automation and integrate with AI services. 
 <br/>
 <br/>
 ---
