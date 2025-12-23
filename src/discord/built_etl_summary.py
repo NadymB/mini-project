@@ -26,7 +26,7 @@ def built_etl_summary(df_final, engine):
 
     df["job_key"] = df.apply(build_job_key, axis=1)
 
-    # 🔍 check notified_jobs exists
+    # check notified_jobs exists
     inspector = inspect(engine)
 
     if inspector.has_table("notified_jobs"):
